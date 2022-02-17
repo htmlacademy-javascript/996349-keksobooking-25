@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг»
 
-* Студент: [Сережа Бочаров](https://up.htmlacademy.ru/javascript/25/user/996349).
-* Наставник: `Неизвестно`.
+* Студент: [Сережа Бочаров](https://htmlacademy.ru//profile/id996349).
+* Наставник: [Артём Рудов](https://htmlacademy.ru/profile/artrudov).
 
 ---
 
