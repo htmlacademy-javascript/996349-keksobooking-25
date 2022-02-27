@@ -115,3 +115,10 @@ function generateObject () {
 }
 
 const simularObject = Array.from({length: SIMULAR_OBJECT_COUNT}, generateObject);
+
+// Эта функция здесь для того что бы ESlint не ругался на simularObject
+function getGenerateObjects () {
+  return simularObject;
+}
+
+getGenerateObjects();
