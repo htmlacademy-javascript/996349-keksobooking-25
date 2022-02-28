@@ -1,124 +1,76 @@
-function getRandomInt (min, max) {
-  min = Math.ceil(min);
-  max = Math.floor(max);
-
-  if (max < min) {
-    return Math.floor(Math.random() * (min - max + 1) + max);
-  }
-
-  return Math.floor(Math.random() * (max - min + 1) + min);
-}
-
-getRandomInt(1, 3);
-
-function getRandomFloatInt (min, max, float) {
-  let result = 0;
-
-  if (max < min) {
-    result = Math.random() * (min - max) + max;
-  } else {
-    result = Math.random() * (max - min) + min;
-  }
-
-  return +result.toFixed(float);
-}
-
-getRandomFloatInt(2, 1, 5);
-
-const SIMULAR_OBJECT_COUNT = 10;
-
-const TYPES = [
-  'palace',
-  'flat',
-  'house',
-  'bungalow',
-  'hotel',
-];
-
-const TIME = [
-  '12:00',
-  '13:00',
-  '14:00',
-];
-
-const FEATURES = [
-  'wifi',
-  'dishwasher',
-  'parking',
-  'washer',
-  'elevator',
-  'conditioner',
-];
-
 const PHOTOS = [
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/duonguyen-8LrGtIxxa4w.jpg',
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/brandon-hoogenboom-SNxQGWxZQi0.jpg',
   'https://assets.htmlacademy.ru/content/intensive/javascript-1/keksobooking/claire-rendall-b6kAwr1i0Iw.jpg',
 ];
+const TYPES = ['palace', 'flat', 'house', 'bungalow', 'hotel'];
+const TIME = ['12:00', '13:00', '14:00'];
+const FEATURES = ['wifi', 'dishwasher', 'parking', 'washer', 'elevator', 'conditioner'];
+const MIN_LAT = 35.65000;
+const MAX_LAT = 35.70000;
+const MIN_LNG = 139.70000;
+const MAX_LNG = 139.80000;
+const FLOAT = 5;
+const PRICE_MIN = 1;
+const PRICE_MAX = 99999;
+const ROOMS_MIN = 1;
+const ROOMS_MAX = 5;
+const GUESTS_MIN = 1;
+const GUESTS_MAX = 20;
+const TWO_DIGITS_NUMBER = 10;
+const QUANTITY_OBJECTS = 10;
 
-function getRandomArrayElement (elements) {
-  return elements[getRandomInt(0, elements.length - 1)];
-}
-
-function getRandomArrayLength (array) {
-  const result = [];
-
-  for (let i = 0; i < getRandomInt(1, array.length); i++) {
-    result.push(array[i]);
+const getRandomInt = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  if (max < min) {
+    return Math.floor(Math.random() * (min - max + 1) + max);
   }
+  return Math.floor(Math.random() * (max - min + 1) + min);
+};
 
-  return result;
-}
+const getRandomFloatInt = (min, max, float) => {
+  let result = 0;
+  if (max < min) {
+    result = Math.random() * (min - max) + max;
+  } else {
+    result = Math.random() * (max - min) + min;
+  }
+  return +result.toFixed(float);
+};
 
-const USER_ID = Array.from({length: SIMULAR_OBJECT_COUNT}, (val, idx) => ++idx);
+const getRandomArrayElement = (elements) => elements[getRandomInt(0, elements.length - 1)];
 
-function getUniqueImgNumber () {
-  const imgNumber = USER_ID.splice(getRandomInt(0, USER_ID[length - 1]), 1);
-  return imgNumber < 10 ? `0${imgNumber}` : `${imgNumber}`;
-}
+const getRandomArrayLength = (array) => array.slice(0, getRandomInt(1, array.length));
 
-function getUserAvatar () {
-  return {
-    avatar: `img/avatars/user${getUniqueImgNumber()}.png`,
+const getImgNumber = (number) => number < TWO_DIGITS_NUMBER ? `0${number}` : number;
+
+
+const generateObject = (val, idx) => {
+  const location = {
+    lat: getRandomFloatInt(MIN_LAT, MAX_LAT, FLOAT),
+    lng: getRandomFloatInt(MIN_LNG, MAX_LNG, FLOAT),
   };
-}
 
-function getUserOffer () {
   return {
-    title: 'Title offer',
-    address: `${getUserLocation().lat}, ${getUserLocation().lng}`,
-    price: getRandomInt(1, 99999),
-    type: getRandomArrayElement(TYPES),
-    rooms: getRandomInt(1, 5),
-    guests: getRandomInt(1, 20),
-    checkin: getRandomArrayElement(TIME),
-    checkout: getRandomArrayElement(TIME),
-    features: getRandomArrayLength(FEATURES),
-    description: 'room description',
-    photos: getRandomArrayLength(PHOTOS),
+    author: {
+      avatar: `img/avatars/user${getImgNumber(idx + 1)}.png`,
+    },
+    offer: {
+      title: 'Title offer',
+      address: `${location.lat}, ${location.lng}`,
+      price: getRandomInt(PRICE_MIN, PRICE_MAX),
+      type: getRandomArrayElement(TYPES),
+      rooms: getRandomInt(ROOMS_MIN, ROOMS_MAX),
+      guests: getRandomInt(GUESTS_MIN, GUESTS_MAX),
+      checkin: getRandomArrayElement(TIME),
+      checkout: getRandomArrayElement(TIME),
+      features: getRandomArrayLength(FEATURES),
+      description: 'room description',
+      photos: getRandomArrayLength(PHOTOS),
+    },
+    location,
   };
-}
+};
 
-function getUserLocation () {
-  return {
-    lat: getRandomFloatInt(35.65000, 35.70000, 5),
-    lng: getRandomFloatInt(139.70000, 139.80000, 5),
-  };
-}
-
-function generateObject () {
-  return {
-    author: getUserAvatar(),
-    offer: getUserOffer(),
-    location: getUserLocation(),
-  };
-}
-
-const simularObject = Array.from({length: SIMULAR_OBJECT_COUNT}, generateObject);
-
-// Эта функция здесь для того что бы ESlint не ругался на simularObject
-function getGenerateObjects () {
-  return simularObject;
-}
-
-getGenerateObjects();
+const simularObject = Array.from({length: QUANTITY_OBJECTS}, generateObject);
