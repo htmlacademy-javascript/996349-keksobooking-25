@@ -13,6 +13,23 @@ const templateModalCard = document.querySelector('#card').content.querySelector(
 const modalCards = generateObjects();
 const modalContainerFragment = document.createDocumentFragment();
 
+const createPhotoItem = (url) => {
+  const photoItem = document.createElement('img');
+  photoItem.classList.add('popup__photo');
+  photoItem.src = url;
+  photoItem.width = 45;
+  photoItem.height = 40;
+  photoItem.alt = 'Фотография жилья';
+  return photoItem;
+};
+
+const createFeatureItem = (feature) => {
+  const featureItem = document.createElement('li');
+  featureItem.classList.add('popup__feature');
+  featureItem.classList.add(`popup__feature--${feature}`);
+  return featureItem;
+};
+
 modalCards.forEach(({author: {avatar}, offer: {title, address, price, type, rooms, guests, checkin, checkout, features, description, photos}}) => {
   const card = templateModalCard.cloneNode(true);
 
@@ -35,23 +52,6 @@ modalCards.forEach(({author: {avatar}, offer: {title, address, price, type, room
   timeElement.textContent = checkin && checkout ? `Заезд после ${checkin}, выезд до ${checkout}` : timeElement.remove();
   descriptionElement.textContent = description ? description : descriptionElement.remove();
   avatarElement.src = avatar ? avatar : avatarElement.remove();
-
-  const createPhotoItem = (url) => {
-    const photoItem = document.createElement('img');
-    photoItem.classList.add('popup__photo');
-    photoItem.src = url;
-    photoItem.width = 45;
-    photoItem.height = 40;
-    photoItem.alt = 'Фотография жилья';
-    return photoItem;
-  };
-
-  const createFeatureItem = (feature) => {
-    const featureItem = document.createElement('li');
-    featureItem.classList.add('popup__feature');
-    featureItem.classList.add(`popup__feature--${feature}`);
-    return featureItem;
-  };
 
   if (photos) {
     const photoItems = photos.map(createPhotoItem);
