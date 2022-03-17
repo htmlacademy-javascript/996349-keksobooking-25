@@ -1,3 +1,5 @@
+const TITLE_MIN_VALUE = 30;
+const TITLE_MAX_VALUE = 100;
 const PRICE_MAX_VALUE = 100000;
 const PRICE_MIN_VALUE = {
   'bungalow' : 0,
@@ -31,7 +33,7 @@ const pristine = new Pristine(formAdd, {
   errorTextClass: 'ad-form__error',
 });
 
-const validateTitleField = (val) => val.length >= 30 && val.length <= 100;
+const validateTitleField = (val) => val.length >= TITLE_MIN_VALUE && val.length <= TITLE_MAX_VALUE;
 const validatePriceField = (val) => val >= PRICE_MIN_VALUE[typeField.value] && val <= PRICE_MAX_VALUE;
 const validateRoomsCapacityField = () => ROMS_PLACES_MAP[roomsField.value].includes(capacityField.value);
 
@@ -60,7 +62,7 @@ typeField.addEventListener('change', () => {
   priceField.placeholder = PRICE_MIN_VALUE[typeField.value];
 });
 
-pristine.addValidator(titleField, validateTitleField, 'От 30 до 100 символов');
+pristine.addValidator(titleField, validateTitleField, `От ${TITLE_MIN_VALUE} до ${TITLE_MAX_VALUE} символов`);
 pristine.addValidator(priceField, validatePriceField, getTypeHousingFieldErrorMassege);
 pristine.addValidator(roomsField, validateRoomsCapacityField, getRoomsCapacityFieldErrorMassege);
 pristine.addValidator(capacityField, validateRoomsCapacityField, getRoomsCapacityFieldErrorMassege);
@@ -68,8 +70,6 @@ pristine.addValidator(capacityField, validateRoomsCapacityField, getRoomsCapacit
 formAdd.addEventListener('submit', (evt) => {
   evt.preventDefault();
   pristine.validate();
-  const valid = pristine.validate();
-  console.log(valid);
 });
 
 const switchInActiveState = () => {
