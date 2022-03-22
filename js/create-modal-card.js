@@ -1,5 +1,3 @@
-import {generateObjects} from './create-data.js';
-
 const TYPES_MAP = {
   palace: 'Дворец',
   flat: 'Квартира',
@@ -8,10 +6,7 @@ const TYPES_MAP = {
   hotel: 'Отель',
 };
 
-const modalContainer = document.querySelector('#map-canvas');
 const templateModalCard = document.querySelector('#card').content.querySelector('.popup');
-const modalCards = generateObjects();
-const modalContainerFragment = document.createDocumentFragment();
 
 const createPhotoItem = (url) => {
   const photoItem = document.createElement('img');
@@ -23,14 +18,14 @@ const createPhotoItem = (url) => {
   return photoItem;
 };
 
-const createFeatureItem = (feature) => {
+const createFeatureItem = (modifier) => {
   const featureItem = document.createElement('li');
   featureItem.classList.add('popup__feature');
-  featureItem.classList.add(`popup__feature--${feature}`);
+  featureItem.classList.add(`popup__feature--${modifier}`);
   return featureItem;
 };
 
-modalCards.forEach(({author: {avatar}, offer: {title, address, price, type, rooms, guests, checkin, checkout, features, description, photos}}) => {
+const createCard = ({author , offer}) => {
   const card = templateModalCard.cloneNode(true);
 
   const typeElement = card.querySelector('.popup__type');
@@ -44,30 +39,30 @@ modalCards.forEach(({author: {avatar}, offer: {title, address, price, type, room
   const featuresList = card.querySelector('.popup__features');
   const photoList = card.querySelector('.popup__photos');
 
-  typeElement.textContent = type ? TYPES_MAP[type] : typeElement.remove();
-  titleElement.textContent = title ? title : titleElement.remove();
-  adressElement.textContent = address ? address : adressElement.remove();
-  priceElement.textContent = price ? `${price} ₽/ночь` : priceElement.remove();
-  capacityElement.textContent = rooms && guests ? `${rooms} комнаты для ${guests} гостей` : capacityElement.remove();
-  timeElement.textContent = checkin && checkout ? `Заезд после ${checkin}, выезд до ${checkout}` : timeElement.remove();
-  descriptionElement.textContent = description ? description : descriptionElement.remove();
-  avatarElement.src = avatar ? avatar : avatarElement.remove();
+  typeElement.textContent = offer.type ? TYPES_MAP[offer.type] : typeElement.remove();
+  titleElement.textContent =  offer.title ?  offer.title : titleElement.remove();
+  adressElement.textContent =  offer.address ?  offer.address : adressElement.remove();
+  priceElement.textContent =  offer.price ? `${ offer.price} ₽/ночь` : priceElement.remove();
+  capacityElement.textContent =  offer.rooms &&  offer.guests ? `${ offer.rooms} комнаты для ${ offer.guests} гостей` : capacityElement.remove();
+  timeElement.textContent =  offer.checkin &&  offer.checkout ? `Заезд после ${ offer.checkin}, выезд до ${ offer.checkout}` : timeElement.remove();
+  descriptionElement.textContent =  offer.description ?  offer.description : descriptionElement.remove();
+  avatarElement.src = author.avatar ? author.avatar : avatarElement.remove();
 
-  if (photos) {
-    const photoItems = photos.map(createPhotoItem);
+  if (offer.photos) {
+    const photoItems = offer.photos.map(createPhotoItem);
     photoItems.forEach((item) => photoList.append(item));
   } else {
     photoList.remove();
   }
 
-  if (features) {
-    const featureItems = features.map(createFeatureItem);
+  if (offer.features) {
+    const featureItems = offer.features.map(createFeatureItem);
     featureItems.forEach((item) => featuresList.append(item));
   } else {
     featuresList.remove();
   }
 
-  modalContainerFragment.append(card);
-});
+  return card;
+};
 
-modalContainer.append(modalContainerFragment);
+export {createCard};

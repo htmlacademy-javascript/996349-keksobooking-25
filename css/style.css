@@ -1032,6 +1032,11 @@ fieldset {
   opacity: 0.6;
 }
 
+.ad-form__error {
+  color: #ee0404;
+  font-size: 12px;
+}
+
 .visually-hidden {
   position: absolute;
 

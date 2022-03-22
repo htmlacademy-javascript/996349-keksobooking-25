@@ -16,6 +16,8 @@ const ROMS_PLACES_MAP = {
   '100' : ['0'],
 };
 
+const CENTER_TOKIO = {lat: 35.681729, lng: 139.753927};
+
 const formAdd = document.querySelector('.ad-form');
 const formAddChailds = formAdd.children;
 const formMapFilter = document.querySelector('.map__filters');
@@ -25,6 +27,8 @@ const priceField = formAdd.querySelector('#price');
 const typeField = formAdd.querySelector('#type');
 const roomsField = formAdd.querySelector('#room_number');
 const capacityField = formAdd.querySelector('#capacity');
+const adressField = formAdd.querySelector('#address');
+const priceSlider = formAdd.querySelector('.ad-form__slider');
 
 const pristine = new Pristine(formAdd, {
   classTo: 'ad-form__element',
@@ -60,10 +64,6 @@ const getRoomsCapacityFieldErrorMassege = () => {
   }
 };
 
-typeField.addEventListener('change', () => {
-  priceField.placeholder = PRICE_MIN_VALUE[typeField.value];
-});
-
 pristine.addValidator(titleField, validateTitleField, `От ${TITLE_MIN_VALUE} до ${TITLE_MAX_VALUE} символов`);
 pristine.addValidator(priceField, validatePriceField, getTypeFieldErrorMassege);
 pristine.addValidator(roomsField, validateRoomsCapacityField, getRoomsCapacityFieldErrorMassege);
@@ -75,6 +75,49 @@ formAdd.addEventListener('submit', (evt) => {
   if (!isValid) {
     evt.preventDefault();
   }
+});
+
+const printCoordinate = (lat, lng) => {
+  adressField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+};
+
+printCoordinate(CENTER_TOKIO.lat, CENTER_TOKIO.lng);
+
+noUiSlider.create(priceSlider, {
+  range: {
+    min: 0,
+    max: PRICE_MAX_VALUE,
+  },
+  start: PRICE_MIN_VALUE['flat'],
+  step: 1,
+  connect: 'lower',
+  format: {
+    to: function (value) {
+      return value.toFixed(0);
+    },
+    from: function (value) {
+      return parseFloat(value);
+    },
+  },
+});
+
+priceSlider.noUiSlider.on('update', () => {
+  priceField.value = priceSlider.noUiSlider.get();
+});
+
+typeField.addEventListener('change', () => {
+  const currentVal = PRICE_MIN_VALUE[typeField.value];
+  priceField.value = currentVal;
+
+  priceSlider.noUiSlider.updateOptions({
+    start: currentVal,
+  });
+});
+
+priceField.addEventListener('change', () => {
+  priceSlider.noUiSlider.updateOptions({
+    start: priceField.value,
+  });
 });
 
 const switchInActiveState = () => {
@@ -103,4 +146,6 @@ const switchActiveState = () => {
   }
 };
 
-export {switchInActiveState, switchActiveState};
+switchInActiveState();
+
+export {switchInActiveState, switchActiveState, CENTER_TOKIO, printCoordinate};
