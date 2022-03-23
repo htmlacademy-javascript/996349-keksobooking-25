@@ -25,6 +25,17 @@ const priceField = formAdd.querySelector('#price');
 const typeField = formAdd.querySelector('#type');
 const roomsField = formAdd.querySelector('#room_number');
 const capacityField = formAdd.querySelector('#capacity');
+const timeInField = formAdd.querySelector('#timein');
+const timeOutField = formAdd.querySelector('#timeout');
+
+timeInField.addEventListener('change', (evt) => {
+  timeOutField.value = evt.target.value;
+});
+
+timeOutField.addEventListener('change', (evt) => {
+  timeInField.value = evt.target.value;
+});
+
 
 const pristine = new Pristine(formAdd, {
   classTo: 'ad-form__element',
