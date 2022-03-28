@@ -1,8 +1,14 @@
-import {CENTER_TOKIO, switchActiveState, printCoordinate} from './form-validate.js';
+import {COORDINATES_TOKIO, switchActiveState, printCoordinate} from './form-validate.js';
 import {generateObjects} from './create-data.js';
-import {createCard} from './create-modal-card.js';
+import {createPopup} from './create-modal-card.js';
 
 const MAP_ZOOM = 13;
+const MAIN_ICON_URL = './img/main-pin.svg';
+const MAIN_ICON_SIZE = [52, 52];
+const MAIN_ICON_ANCHOR = [26, 52];
+const SIMULAR_ICON_URL = './img/pin.svg';
+const SIMULAR_ICON_SIZE = [40, 40];
+const SIMULAR_ICON_ANCHOR = [20, 40];
 
 const map = L.map('map-canvas')
   .on('load', () => {
@@ -10,8 +16,8 @@ const map = L.map('map-canvas')
   })
 
   .setView({
-    lat: CENTER_TOKIO.lat,
-    lng: CENTER_TOKIO.lng,
+    lat: COORDINATES_TOKIO.lat,
+    lng: COORDINATES_TOKIO.lng,
   }, MAP_ZOOM);
 
 L.tileLayer(
@@ -21,22 +27,23 @@ L.tileLayer(
   },
 ).addTo(map);
 
-const markerMainIcon = L.icon({
-  iconUrl: './img/main-pin.svg',
-  iconSize: [52, 52],
-  iconAnchor: [26, 52],
-});
+const getMarker = (ulr, size, anchor) => {
+  const iconSettings = {
+    iconUrl: ulr,
+    iconSize: size,
+    iconAnchor: anchor,
+  };
 
-const markerSimularAdIcon = L.icon({
-  iconUrl: './img/pin.svg',
-  iconSize: [40, 40],
-  iconAnchor: [20, 40],
-});
+  return iconSettings;
+};
+
+const markerMainIcon = L.icon(getMarker(MAIN_ICON_URL, MAIN_ICON_SIZE, MAIN_ICON_ANCHOR));
+const markerSimularIcon = L.icon(getMarker(SIMULAR_ICON_URL, SIMULAR_ICON_SIZE, SIMULAR_ICON_ANCHOR));
 
 const markerMain = L.marker(
   {
-    lat: CENTER_TOKIO.lat,
-    lng: CENTER_TOKIO.lng,
+    lat: COORDINATES_TOKIO.lat,
+    lng: COORDINATES_TOKIO.lng,
   },
   {
     draggable: true,
@@ -55,11 +62,11 @@ pointsSimularAd.forEach(({author, offer, location: {lat, lng}}) => {
       lng,
     },
     {
-      icon: markerSimularAdIcon,
+      icon: markerSimularIcon,
     },
   );
 
-  markerSimularAd.addTo(map).bindPopup(createCard({author, offer}));
+  markerSimularAd.addTo(map).bindPopup(createPopup({author, offer}));
 });
 
 markerMain.on('moveend', (evt) => {

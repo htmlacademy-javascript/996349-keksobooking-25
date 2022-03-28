@@ -1033,6 +1033,7 @@ fieldset {
 }
 
 .ad-form__error {
+  display: block;
   color: #ee0404;
   font-size: 12px;
 }

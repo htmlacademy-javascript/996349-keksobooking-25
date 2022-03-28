@@ -16,7 +16,7 @@ const ROMS_PLACES_MAP = {
   '100' : ['0'],
 };
 
-const CENTER_TOKIO = {lat: 35.681729, lng: 139.753927};
+const COORDINATES_TOKIO = {lat: 35.681729, lng: 139.753927};
 
 const formAdd = document.querySelector('.ad-form');
 const formAddChailds = formAdd.children;
@@ -81,7 +81,7 @@ const printCoordinate = (lat, lng) => {
   adressField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 };
 
-printCoordinate(CENTER_TOKIO.lat, CENTER_TOKIO.lng);
+printCoordinate(COORDINATES_TOKIO.lat, COORDINATES_TOKIO.lng);
 
 noUiSlider.create(priceSlider, {
   range: {
@@ -120,32 +120,28 @@ priceField.addEventListener('change', () => {
   });
 });
 
+const switchAttribute = (elements, isDisabled) => {
+  for (let i = 0; i < elements.length; i++) {
+    elements[i].disabled = isDisabled;
+  }
+};
+
 const switchInActiveState = () => {
   formAdd.classList.add('ad-form--disabled');
   formMapFilter.classList.add('map__filters--disabled');
 
-  for (let i = 0; i < formAddChailds.length; i++) {
-    formAddChailds[i].setAttribute('disabled', 'disabled');
-  }
-
-  for (let i = 0; i < formMapFilterChailds.length; i++) {
-    formMapFilterChailds[i].setAttribute('disabled', 'disabled');
-  }
+  switchAttribute(formAddChailds, true);
+  switchAttribute(formMapFilterChailds, true);
 };
 
 const switchActiveState = () => {
   formAdd.classList.remove('ad-form--disabled');
   formMapFilter.classList.remove('map__filters--disabled');
 
-  for (let i = 0; i < formAddChailds.length; i++) {
-    formAddChailds[i].removeAttribute('disabled');
-  }
-
-  for (let i = 0; i < formMapFilterChailds.length; i++) {
-    formMapFilterChailds[i].removeAttribute('disabled');
-  }
+  switchAttribute(formAddChailds, false);
+  switchAttribute(formMapFilterChailds, false);
 };
 
 switchInActiveState();
 
-export {switchInActiveState, switchActiveState, CENTER_TOKIO, printCoordinate};
+export {switchInActiveState, switchActiveState, COORDINATES_TOKIO, printCoordinate};
