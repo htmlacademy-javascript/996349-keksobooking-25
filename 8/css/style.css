@@ -1033,6 +1033,7 @@ fieldset {
 }
 
 .ad-form__error {
+  display: block;
   color: #ee0404;
   font-size: 12px;
 }
@@ -1053,6 +1054,13 @@ fieldset {
           clip-path: inset(100%);
   clip: rect(0 0 0 0);
   overflow: hidden;
+}
+
+.ad-form__error {
+  display: block;
+  margin: 5px 0 0 0;
+  font-size: 12px;
+  color: #ff0000;
 }
 
 .hidden {
