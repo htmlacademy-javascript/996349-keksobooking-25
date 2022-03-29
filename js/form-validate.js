@@ -16,6 +16,8 @@ const ROMS_PLACES_MAP = {
   '100' : ['0'],
 };
 
+const COORDINATES_TOKIO = {lat: 35.681729, lng: 139.753927};
+
 const formAdd = document.querySelector('.ad-form');
 const formAddChailds = formAdd.children;
 const formMapFilter = document.querySelector('.map__filters');
@@ -25,6 +27,8 @@ const priceField = formAdd.querySelector('#price');
 const typeField = formAdd.querySelector('#type');
 const roomsField = formAdd.querySelector('#room_number');
 const capacityField = formAdd.querySelector('#capacity');
+const adressField = formAdd.querySelector('#address');
+const priceSlider = formAdd.querySelector('.ad-form__slider');
 const timeInField = formAdd.querySelector('#timein');
 const timeOutField = formAdd.querySelector('#timeout');
 
@@ -35,7 +39,6 @@ timeInField.addEventListener('change', (evt) => {
 timeOutField.addEventListener('change', (evt) => {
   timeInField.value = evt.target.value;
 });
-
 
 const pristine = new Pristine(formAdd, {
   classTo: 'ad-form__element',
@@ -71,10 +74,6 @@ const getRoomsCapacityFieldErrorMassege = () => {
   }
 };
 
-typeField.addEventListener('change', () => {
-  priceField.placeholder = PRICE_MIN_VALUE[typeField.value];
-});
-
 pristine.addValidator(titleField, validateTitleField, `От ${TITLE_MIN_VALUE} до ${TITLE_MAX_VALUE} символов`);
 pristine.addValidator(priceField, validatePriceField, getTypeFieldErrorMassege);
 pristine.addValidator(roomsField, validateRoomsCapacityField, getRoomsCapacityFieldErrorMassege);
@@ -88,30 +87,71 @@ formAdd.addEventListener('submit', (evt) => {
   }
 });
 
+const printCoordinate = (lat, lng) => {
+  adressField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+};
+
+printCoordinate(COORDINATES_TOKIO.lat, COORDINATES_TOKIO.lng);
+
+noUiSlider.create(priceSlider, {
+  range: {
+    min: 0,
+    max: PRICE_MAX_VALUE,
+  },
+  start: PRICE_MIN_VALUE['flat'],
+  step: 1,
+  connect: 'lower',
+  format: {
+    to: function (value) {
+      return value.toFixed(0);
+    },
+    from: function (value) {
+      return parseFloat(value);
+    },
+  },
+});
+
+priceSlider.noUiSlider.on('update', () => {
+  priceField.value = priceSlider.noUiSlider.get();
+});
+
+typeField.addEventListener('change', () => {
+  const currentVal = PRICE_MIN_VALUE[typeField.value];
+  priceField.value = currentVal;
+
+  priceSlider.noUiSlider.updateOptions({
+    start: currentVal,
+  });
+});
+
+priceField.addEventListener('change', () => {
+  priceSlider.noUiSlider.updateOptions({
+    start: priceField.value,
+  });
+});
+
+const switchAttribute = (elements, isDisabled) => {
+  for (let i = 0; i < elements.length; i++) {
+    elements[i].disabled = isDisabled;
+  }
+};
+
 const switchInActiveState = () => {
   formAdd.classList.add('ad-form--disabled');
   formMapFilter.classList.add('map__filters--disabled');
 
-  for (let i = 0; i < formAddChailds.length; i++) {
-    formAddChailds[i].setAttribute('disabled', 'disabled');
-  }
-
-  for (let i = 0; i < formMapFilterChailds.length; i++) {
-    formMapFilterChailds[i].setAttribute('disabled', 'disabled');
-  }
+  switchAttribute(formAddChailds, true);
+  switchAttribute(formMapFilterChailds, true);
 };
 
 const switchActiveState = () => {
   formAdd.classList.remove('ad-form--disabled');
   formMapFilter.classList.remove('map__filters--disabled');
 
-  for (let i = 0; i < formAddChailds.length; i++) {
-    formAddChailds[i].removeAttribute('disabled');
-  }
-
-  for (let i = 0; i < formMapFilterChailds.length; i++) {
-    formMapFilterChailds[i].removeAttribute('disabled');
-  }
+  switchAttribute(formAddChailds, false);
+  switchAttribute(formMapFilterChailds, false);
 };
 
-export {switchInActiveState, switchActiveState};
+switchInActiveState();
+
+export {switchInActiveState, switchActiveState, COORDINATES_TOKIO, printCoordinate};

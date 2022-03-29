@@ -1,5 +1,3 @@
-import {generateObjects} from './create-data.js';
-
 const TYPES_MAP = {
   palace: 'Дворец',
   flat: 'Квартира',
@@ -7,11 +5,6 @@ const TYPES_MAP = {
   bungalow: 'Бунгало',
   hotel: 'Отель',
 };
-
-const modalContainer = document.querySelector('#map-canvas');
-const templateModalCard = document.querySelector('#card').content.querySelector('.popup');
-const modalCards = generateObjects();
-const modalContainerFragment = document.createDocumentFragment();
 
 const createPhotoItem = (url) => {
   const photoItem = document.createElement('img');
@@ -23,51 +16,58 @@ const createPhotoItem = (url) => {
   return photoItem;
 };
 
-const createFeatureItem = (feature) => {
+const createFeatureItem = (modifier) => {
   const featureItem = document.createElement('li');
   featureItem.classList.add('popup__feature');
-  featureItem.classList.add(`popup__feature--${feature}`);
+  featureItem.classList.add(`popup__feature--${modifier}`);
   return featureItem;
 };
 
-modalCards.forEach(({author: {avatar}, offer: {title, address, price, type, rooms, guests, checkin, checkout, features, description, photos}}) => {
-  const card = templateModalCard.cloneNode(true);
-
-  const typeElement = card.querySelector('.popup__type');
-  const titleElement = card.querySelector('.popup__title');
-  const adressElement = card.querySelector('.popup__text--address');
-  const priceElement = card.querySelector('.popup__text--price');
-  const capacityElement = card.querySelector('.popup__text--capacity');
-  const timeElement = card.querySelector('.popup__text--time');
-  const descriptionElement = card.querySelector('.popup__description');
-  const avatarElement = card.querySelector('.popup__avatar');
-  const featuresList = card.querySelector('.popup__features');
-  const photoList = card.querySelector('.popup__photos');
-
-  typeElement.textContent = type ? TYPES_MAP[type] : typeElement.remove();
-  titleElement.textContent = title ? title : titleElement.remove();
-  adressElement.textContent = address ? address : adressElement.remove();
-  priceElement.textContent = price ? `${price} ₽/ночь` : priceElement.remove();
-  capacityElement.textContent = rooms && guests ? `${rooms} комнаты для ${guests} гостей` : capacityElement.remove();
-  timeElement.textContent = checkin && checkout ? `Заезд после ${checkin}, выезд до ${checkout}` : timeElement.remove();
-  descriptionElement.textContent = description ? description : descriptionElement.remove();
-  avatarElement.src = avatar ? avatar : avatarElement.remove();
-
-  if (photos) {
-    const photoItems = photos.map(createPhotoItem);
-    photoItems.forEach((item) => photoList.append(item));
+const printData = (element, condition, content, fieldContent = 'textContent') => {
+  if (condition) {
+    element[fieldContent] = content;
   } else {
-    photoList.remove();
+    element.remove();
   }
+};
 
-  if (features) {
-    const featureItems = features.map(createFeatureItem);
-    featureItems.forEach((item) => featuresList.append(item));
+const printArrayData = (elements, append, createElement) => {
+  if (elements) {
+    elements.forEach((val) => {
+      append.append(createElement(val));
+    });
   } else {
-    featuresList.remove();
+    append.remove();
   }
+};
 
-  modalContainerFragment.append(card);
-});
+const templatePopup = document.querySelector('#card').content.querySelector('.popup');
 
-modalContainer.append(modalContainerFragment);
+const createPopup = ({author, offer}) => {
+  const popup = templatePopup.cloneNode(true);
+  const typeElement = popup.querySelector('.popup__type');
+  const titleElement = popup.querySelector('.popup__title');
+  const adressElement = popup.querySelector('.popup__text--address');
+  const priceElement = popup.querySelector('.popup__text--price');
+  const capacityElement = popup.querySelector('.popup__text--capacity');
+  const timeElement = popup.querySelector('.popup__text--time');
+  const descriptionElement = popup.querySelector('.popup__description');
+  const avatarElement = popup.querySelector('.popup__avatar');
+  const featuresList = popup.querySelector('.popup__features');
+  const photoList = popup.querySelector('.popup__photos');
+
+  printData(typeElement,offer.type, TYPES_MAP[offer.type]);
+  printData(titleElement, offer.title, offer.title);
+  printData(adressElement, offer.address, offer.address);
+  printData(descriptionElement, offer.description, offer.description);
+  printData(priceElement, offer.price, `${offer.price} ₽/ночь`);
+  printData(capacityElement, offer.rooms && offer.guests, `${offer.rooms} комнаты для ${offer.guests} гостей`);
+  printData(timeElement, offer.checkin && offer.checkout, `Заезд после ${offer.checkin}, выезд до ${offer.checkout}`);
+  printData(avatarElement, author.avatar, author.avatar, 'src');
+  printArrayData(offer.photos, photoList, createPhotoItem);
+  printArrayData(offer.features, featuresList, createFeatureItem);
+
+  return popup;
+};
+
+export {createPopup};

@@ -20,7 +20,7 @@ const ROOMS_MAX = 5;
 const GUESTS_MIN = 1;
 const GUESTS_MAX = 20;
 const TWO_DIGITS_NUMBER = 10;
-const QUANTITY_OBJECTS = 1;
+const QUANTITY_OBJECTS = 10;
 
 const getImgNumber = (number) => number < TWO_DIGITS_NUMBER ? `0${number}` : number;
 
