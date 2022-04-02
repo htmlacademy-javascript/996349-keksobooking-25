@@ -1,3 +1,6 @@
+import { sendData } from './ajax.js';
+import { markerMain , COORDINATES_TOKIO} from './map-settings.js';
+
 const TITLE_MAX_VALUE = 100;
 const TITLE_MIN_VALUE = 30;
 const PRICE_MAX_VALUE = 100000;
@@ -16,12 +19,7 @@ const ROMS_PLACES_MAP = {
   '100' : ['0'],
 };
 
-const COORDINATES_TOKIO = {lat: 35.681729, lng: 139.753927};
-
 const formAdd = document.querySelector('.ad-form');
-const formAddChailds = formAdd.children;
-const formMapFilter = document.querySelector('.map__filters');
-const formMapFilterChailds = formMapFilter.children;
 const titleField = formAdd.querySelector('#title');
 const priceField = formAdd.querySelector('#price');
 const typeField = formAdd.querySelector('#type');
@@ -31,6 +29,11 @@ const adressField = formAdd.querySelector('#address');
 const priceSlider = formAdd.querySelector('.ad-form__slider');
 const timeInField = formAdd.querySelector('#timein');
 const timeOutField = formAdd.querySelector('#timeout');
+const submitButton = formAdd.querySelector('.ad-form__submit');
+const successMassege = document.querySelector('#success').content.querySelector('.success');
+const errorMassege = document.querySelector('#error').content.querySelector('.error');
+const errorMassegeButton = errorMassege.querySelector('.error__button');
+const resetButton = formAdd.querySelector('.ad-form__reset');
 
 timeInField.addEventListener('change', (evt) => {
   timeOutField.value = evt.target.value;
@@ -79,19 +82,35 @@ pristine.addValidator(priceField, validatePriceField, getTypeFieldErrorMassege);
 pristine.addValidator(roomsField, validateRoomsCapacityField, getRoomsCapacityFieldErrorMassege);
 pristine.addValidator(capacityField, validateRoomsCapacityField, getRoomsCapacityFieldErrorMassege);
 
-formAdd.addEventListener('submit', (evt) => {
-  const isValid = pristine.validate();
+const switchAttributeSubmitBtn = (isDisabled) => {
+  submitButton.disabled = isDisabled;
+};
 
-  if (!isValid) {
-    evt.preventDefault();
+const showMessege = (element, btnElement) => {
+  document.body.append(element);
+
+  element.addEventListener('click', (() => {
+    element.remove();
+  }));
+
+  document.addEventListener('keydown', (evt) => {
+    if (evt.key === 'Escape') {
+      element.remove();
+    }
+  });
+
+  if (btnElement) {
+    btnElement.addEventListener('click', (() => {
+      element.remove();
+    }));
   }
-});
+};
 
-const printCoordinate = (lat, lng) => {
+const printAdressFieldCoordinate = (lat, lng) => {
   adressField.value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 };
 
-printCoordinate(COORDINATES_TOKIO.lat, COORDINATES_TOKIO.lng);
+printAdressFieldCoordinate(COORDINATES_TOKIO.lat, COORDINATES_TOKIO.lng);
 
 noUiSlider.create(priceSlider, {
   range: {
@@ -113,6 +132,7 @@ noUiSlider.create(priceSlider, {
 
 priceSlider.noUiSlider.on('update', () => {
   priceField.value = priceSlider.noUiSlider.get();
+  pristine.validate(priceField);
 });
 
 typeField.addEventListener('change', () => {
@@ -130,28 +150,44 @@ priceField.addEventListener('change', () => {
   });
 });
 
-const switchAttribute = (elements, isDisabled) => {
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].disabled = isDisabled;
+const clearAdForm = () => {
+  formAdd.reset();
+
+  priceSlider.noUiSlider.updateOptions({
+    start: PRICE_MIN_VALUE['flat'],
+  });
+
+  printAdressFieldCoordinate(COORDINATES_TOKIO.lat, COORDINATES_TOKIO.lng);
+
+  markerMain.setLatLng(COORDINATES_TOKIO);
+};
+
+resetButton.addEventListener('click', (evt) => {
+  evt.preventDefault();
+
+  clearAdForm();
+});
+
+
+formAdd.addEventListener('submit', (evt) => {
+  evt.preventDefault();
+  const isValid = pristine.validate();
+
+  if (isValid) {
+    switchAttributeSubmitBtn(true);
+    sendData(
+      () => {
+        clearAdForm();
+        showMessege(successMassege);
+        switchAttributeSubmitBtn(false);
+      },
+      () => {
+        showMessege(errorMassege, errorMassegeButton);
+        switchAttributeSubmitBtn(false);
+      },
+      new FormData(evt.target)
+    );
   }
-};
+});
 
-const switchInActiveState = () => {
-  formAdd.classList.add('ad-form--disabled');
-  formMapFilter.classList.add('map__filters--disabled');
-
-  switchAttribute(formAddChailds, true);
-  switchAttribute(formMapFilterChailds, true);
-};
-
-const switchActiveState = () => {
-  formAdd.classList.remove('ad-form--disabled');
-  formMapFilter.classList.remove('map__filters--disabled');
-
-  switchAttribute(formAddChailds, false);
-  switchAttribute(formMapFilterChailds, false);
-};
-
-switchInActiveState();
-
-export {switchInActiveState, switchActiveState, COORDINATES_TOKIO, printCoordinate};
+export {printAdressFieldCoordinate};
