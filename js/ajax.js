@@ -1,12 +1,15 @@
+const GET_DATA_URL = 'https://25.javascript.pages.academy/keksobooking/data';
+const SEND_DATA_URL = 'https://25.javascript.pages.academy/keksobooking';
+
 const getData = (onSuccess, onFail) => {
-  fetch('https://25.javascript.pages.academy/keksobooking/data')
+  fetch(GET_DATA_URL)
     .then((Response) => Response.json())
     .then((adDatas) => onSuccess(adDatas))
-    .catch((error) => onFail(error));
+    .catch(onFail);
 };
 
-const sendData = (onSuccess, onfail, body) => {
-  fetch('https://25.javascript.pages.academ/keksobooking', {
+const sendData = (onSuccess, onFail, body) => {
+  fetch(SEND_DATA_URL, {
     method : 'POST',
     body: body,
   })
@@ -14,10 +17,10 @@ const sendData = (onSuccess, onfail, body) => {
       if (response.ok) {
         onSuccess();
       } else {
-        onfail();
+        onFail();
       }
     })
-    .catch(() => onfail());
+    .catch(onFail);
 };
 
 export {getData, sendData};
