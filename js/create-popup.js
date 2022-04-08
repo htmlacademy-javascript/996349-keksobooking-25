@@ -56,7 +56,7 @@ const createPopup = ({author, offer}) => {
   const featuresList = popup.querySelector('.popup__features');
   const photoList = popup.querySelector('.popup__photos');
 
-  printData(typeElement,offer.type, TYPES_MAP[offer.type]);
+  printData(typeElement, offer.type, TYPES_MAP[offer.type]);
   printData(titleElement, offer.title, offer.title);
   printData(adressElement, offer.address, offer.address);
   printData(descriptionElement, offer.description, offer.description);
