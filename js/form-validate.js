@@ -1,5 +1,5 @@
-import { sendData } from './ajax.js';
-import { markerMain , COORDINATES_TOKIO} from './map-settings.js';
+import {sendData} from './ajax.js';
+import {markerMain , COORDINATES_TOKIO} from './map-settings.js';
 
 const TITLE_MAX_VALUE = 100;
 const TITLE_MIN_VALUE = 30;

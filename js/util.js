@@ -18,4 +18,26 @@ const showErrorAlert = (messege) => {
   setTimeout(() => alert.remove(), 5000);
 };
 
-export {showErrorAlert};
+const debounce = function (callback, timeoutDelay = 500) {
+  let timeoutId;
+
+  return (...rest) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => callback.apply(this, rest), timeoutDelay);
+  };
+};
+
+const throttle = function (callback, delayBetweenFrames) {
+  let lastTime = 0;
+
+  return (...rest) => {
+    const now = new Date();
+
+    if (now - lastTime >= delayBetweenFrames) {
+      callback.apply(this, rest);
+      lastTime = now;
+    }
+  };
+};
+
+export {showErrorAlert, debounce, throttle};

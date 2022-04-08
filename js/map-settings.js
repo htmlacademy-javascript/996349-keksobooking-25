@@ -1,7 +1,8 @@
 import {printAdressFieldCoordinate} from './form-validate.js';
 import {getData} from './ajax.js';
-import {showErrorAlert} from './util.js';
-import {createPopup} from './create-modal-card.js';
+import {showErrorAlert, debounce} from './util.js';
+import {createPopup} from './create-popup.js';
+import {filterPopup, setChangeHandler} from './filter-popups.js';
 
 const MAP_ZOOM = 13;
 const MAIN_ICON_URL = './img/main-pin.svg';
@@ -10,6 +11,8 @@ const MAIN_ICON_ANCHOR = [26, 52];
 const SIMULAR_ICON_URL = './img/pin.svg';
 const SIMULAR_ICON_SIZE = [40, 40];
 const SIMULAR_ICON_ANCHOR = [20, 40];
+const QUALITY_SIMULAR_POPUPS = 10;
+const PRINT_POPUPS_DELAY = 500;
 
 const COORDINATES_TOKIO = {
   lat: 35.681729,
@@ -20,6 +23,11 @@ const formAdd = document.querySelector('.ad-form');
 const formAddChailds = formAdd.children;
 const formMapFilter = document.querySelector('.map__filters');
 const formMapFilterChailds = formMapFilter.children;
+const typeSelect = document.querySelector('#housing-type');
+const priceSelect = document.querySelector('#housing-price');
+const roomsSelect = document.querySelector('#housing-rooms');
+const guestsSelect = document.querySelector('#housing-guests');
+const featuresCheckboxWrapper = document.querySelector('#housing-features');
 
 const switchAttribute = (elements, isDisabled) => {
   for (let i = 0; i < elements.length; i++) {
@@ -85,26 +93,42 @@ const markerMain = L.marker(
 
 markerMain.addTo(map);
 
-getData((markersSimular) => {
-  markersSimular.forEach(({author, offer, location: {lat, lng}}) => {
-    const markerSimularAd = L.marker(
-      {
-        lat,
-        lng
-      },
-      {
-        icon: markerSimularIcon
-      }
-    );
-
-    markerSimularAd.addTo(map).bindPopup(createPopup({author, offer}));
-  });
-}, (error) => showErrorAlert(`При загрузке данных произошла ошибка: ${error}`));
+const markerGroup = L.layerGroup().addTo(map);
 
 markerMain.on('moveend', (evt) => {
   const currenCoordinanate = evt.target.getLatLng();
 
   printAdressFieldCoordinate(currenCoordinanate.lat, currenCoordinanate.lng);
 });
+
+const renderPopups = ({author, offer, location: {lat, lng}}) => {
+  const markerPopop = L.marker(
+    { lat, lng },
+    { icon: markerSimularIcon }
+  );
+
+  markerPopop.addTo(markerGroup).bindPopup(createPopup({author, offer}));
+};
+
+const printPopups = (popupsSimular) => {
+  markerGroup.clearLayers();
+
+  popupsSimular
+    .filter(filterPopup)
+    .slice(0, QUALITY_SIMULAR_POPUPS)
+    .forEach(renderPopups);
+};
+
+getData(
+  (popupsSimular) => {
+    printPopups(popupsSimular);
+    setChangeHandler(typeSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+    setChangeHandler(priceSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+    setChangeHandler(roomsSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+    setChangeHandler(guestsSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+    setChangeHandler(featuresCheckboxWrapper, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+  },
+  (error) => showErrorAlert(`При загрузке данных произошла ошибка: ${error}`)
+);
 
 export {COORDINATES_TOKIO , markerMain};
