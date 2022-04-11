@@ -1,9 +1,9 @@
 const showErrorAlert = (messege) => {
   const alert = document.createElement('span');
-  alert.style.zIndex = 100;
+  alert.style.zIndex = '100';
   alert.style.position = 'fixed';
-  alert.style.left = 0;
-  alert.style.top = 0;
+  alert.style.left = '0';
+  alert.style.top = '0';
   alert.style.width = '100%';
   alert.style.padding = '10px';
   alert.style.textAlign = 'center';
@@ -27,17 +27,4 @@ const debounce = function (callback, timeoutDelay = 500) {
   };
 };
 
-const throttle = function (callback, delayBetweenFrames) {
-  let lastTime = 0;
-
-  return (...rest) => {
-    const now = new Date();
-
-    if (now - lastTime >= delayBetweenFrames) {
-      callback.apply(this, rest);
-      lastTime = now;
-    }
-  };
-};
-
-export {showErrorAlert, debounce, throttle};
+export {showErrorAlert, debounce};
