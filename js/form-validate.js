@@ -217,13 +217,11 @@ formAdd.addEventListener('submit', (evt) => {
     sendData(
       () => {
         clearAdForm();
-        // showMessege(successMassege);
         showSuccesMessege();
         switchAttributeSubmitBtn(false);
       },
       () => {
         showFailMessege();
-        // showMessege(errorMassege, errorMassegeButton);
         switchAttributeSubmitBtn(false);
       },
       new FormData(evt.target)
