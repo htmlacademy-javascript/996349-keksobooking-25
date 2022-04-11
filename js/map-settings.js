@@ -30,9 +30,9 @@ const guestsSelect = document.querySelector('#housing-guests');
 const featuresCheckboxWrapper = document.querySelector('#housing-features');
 
 const switchAttribute = (elements, isDisabled) => {
-  for (let i = 0; i < elements.length; i++) {
-    elements[i].disabled = isDisabled;
-  }
+  Array.from(elements).forEach((element) => {
+    element.disabled = isDisabled;
+  });
 };
 
 const switchInActiveState = () => {
@@ -43,21 +43,19 @@ const switchInActiveState = () => {
   switchAttribute(formMapFilterChailds, true);
 };
 
-const switchActiveState = () => {
+const switchActiveStateAddForm = () => {
   formAdd.classList.remove('ad-form--disabled');
-  formMapFilter.classList.remove('map__filters--disabled');
-
   switchAttribute(formAddChailds, false);
+};
+
+const switchActiveStateFilterForm = () => {
+  formMapFilter.classList.remove('map__filters--disabled');
   switchAttribute(formMapFilterChailds, false);
 };
 
 switchInActiveState();
 
-const map = L.map('map-canvas')
-  .on('load', () => {
-    switchActiveState();
-  })
-  .setView(COORDINATES_TOKIO, MAP_ZOOM);
+const map = L.map('map-canvas');
 
 L.tileLayer(
   'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
@@ -95,7 +93,7 @@ markerMain.addTo(map);
 
 const markerGroup = L.layerGroup().addTo(map);
 
-markerMain.on('moveend', (evt) => {
+markerMain.on('move', (evt) => {
   const currenCoordinanate = evt.target.getLatLng();
 
   printAdressFieldCoordinate(currenCoordinanate.lat, currenCoordinanate.lng);
@@ -103,8 +101,13 @@ markerMain.on('moveend', (evt) => {
 
 const renderPopups = ({author, offer, location: {lat, lng}}) => {
   const markerPopop = L.marker(
-    { lat, lng },
-    { icon: markerSimularIcon }
+    {
+      lat,
+      lng
+    },
+    {
+      icon: markerSimularIcon
+    }
   );
 
   markerPopop.addTo(markerGroup).bindPopup(createPopup({author, offer}));
@@ -119,16 +122,26 @@ const printPopups = (popupsSimular) => {
     .forEach(renderPopups);
 };
 
-getData(
-  (popupsSimular) => {
-    printPopups(popupsSimular);
-    setChangeHandler(typeSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
-    setChangeHandler(priceSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
-    setChangeHandler(roomsSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
-    setChangeHandler(guestsSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
-    setChangeHandler(featuresCheckboxWrapper, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
-  },
-  (error) => showErrorAlert(`При загрузке данных произошла ошибка: ${error}`)
-);
+map.on('load', () => {
+  switchActiveStateAddForm();
 
-export {COORDINATES_TOKIO , markerMain};
+  getData(
+    (popupsSimular) => {
+      printPopups(popupsSimular);
+      setChangeHandler(typeSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+      setChangeHandler(priceSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+      setChangeHandler(roomsSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+      setChangeHandler(guestsSelect, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+      setChangeHandler(featuresCheckboxWrapper, debounce(() => printPopups(popupsSimular)), PRINT_POPUPS_DELAY);
+    },
+    (error) => {
+      formMapFilter.classList.add('map__filters--disabled');
+      switchAttribute(formMapFilterChailds, true);
+      showErrorAlert(`При загрузке данных произошла ошибка: ${error}`);
+    }
+  );
+
+  switchActiveStateFilterForm();
+}).setView(COORDINATES_TOKIO, MAP_ZOOM);
+
+export {COORDINATES_TOKIO , markerMain, printPopups};

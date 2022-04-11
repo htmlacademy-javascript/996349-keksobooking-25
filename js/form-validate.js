@@ -1,6 +1,8 @@
-import {sendData} from './ajax.js';
-import {markerMain , COORDINATES_TOKIO} from './map-settings.js';
+import {getData ,sendData} from './ajax.js';
+import {markerMain , COORDINATES_TOKIO, printPopups} from './map-settings.js';
+import {showErrorAlert} from './util.js';
 
+const DEFAULT_PREVIEW_PICTURE = 'img/muffin-grey.svg';
 const TITLE_MAX_VALUE = 100;
 const TITLE_MIN_VALUE = 30;
 const PRICE_MAX_VALUE = 100000;
@@ -19,6 +21,7 @@ const ROMS_PLACES_MAP = {
   '100' : ['0'],
 };
 
+const formFilter = document.querySelector('.map__filters');
 const formAdd = document.querySelector('.ad-form');
 const titleField = formAdd.querySelector('#title');
 const priceField = formAdd.querySelector('#price');
@@ -30,7 +33,10 @@ const priceSlider = formAdd.querySelector('.ad-form__slider');
 const timeInField = formAdd.querySelector('#timein');
 const timeOutField = formAdd.querySelector('#timeout');
 const submitButton = formAdd.querySelector('.ad-form__submit');
-const successMassege = document.querySelector('#success').content.querySelector('.success');
+const avatarPreview = formAdd.querySelector('.ad-form-header__preview img');
+const houseImagePreview = formAdd.querySelector('.ad-form__photo img');
+
+const successMessege = document.querySelector('#success').content.querySelector('.success');
 const errorMassege = document.querySelector('#error').content.querySelector('.error');
 const errorMassegeButton = errorMassege.querySelector('.error__button');
 const resetButton = formAdd.querySelector('.ad-form__reset');
@@ -86,24 +92,44 @@ const switchAttributeSubmitBtn = (isDisabled) => {
   submitButton.disabled = isDisabled;
 };
 
-const showMessege = (element, btnElement) => {
-  document.body.append(element);
+const closeMessege = (element, handler) => {
+  element.remove();
+  document.removeEventListener('keydown', handler);
+};
 
-  element.addEventListener('click', (() => {
-    element.remove();
+const successMessegeKeydownHandler = (evt) => {
+  if (evt.key === 'Escape') {
+    closeMessege(successMessege, successMessegeKeydownHandler);
+  }
+};
+
+const showSuccesMessege = () => {
+  document.body.append(successMessege);
+
+  successMessege.addEventListener('click', (() => {
+    closeMessege(successMessege, successMessegeKeydownHandler);
   }));
 
-  document.addEventListener('keydown', (evt) => {
-    if (evt.key === 'Escape') {
-      element.remove();
-    }
-  });
+  document.addEventListener('keydown', successMessegeKeydownHandler);
+};
 
-  if (btnElement) {
-    btnElement.addEventListener('click', (() => {
-      element.remove();
-    }));
+const failMessegeKeydownHendler = (evt) => {
+  if (evt.key === 'Escape') {
+    closeMessege(errorMassege, failMessegeKeydownHendler);
   }
+};
+
+const showFailMessege = () => {
+  document.body.append(errorMassege);
+  document.addEventListener('keydown', failMessegeKeydownHendler);
+
+  errorMassege.addEventListener('click', (() => {
+    closeMessege(errorMassege, failMessegeKeydownHendler);
+  }));
+
+  errorMassegeButton.addEventListener('click', (() => {
+    closeMessege(errorMassege, failMessegeKeydownHendler);
+  }));
 };
 
 const printAdressFieldCoordinate = (lat, lng) => {
@@ -152,6 +178,9 @@ priceField.addEventListener('change', () => {
 
 const clearAdForm = () => {
   formAdd.reset();
+  formFilter.reset();
+
+  formAdd.querySelector('#images');
 
   priceSlider.noUiSlider.updateOptions({
     start: PRICE_MIN_VALUE['flat'],
@@ -160,6 +189,16 @@ const clearAdForm = () => {
   printAdressFieldCoordinate(COORDINATES_TOKIO.lat, COORDINATES_TOKIO.lng);
 
   markerMain.setLatLng(COORDINATES_TOKIO);
+
+  avatarPreview.src = DEFAULT_PREVIEW_PICTURE;
+  houseImagePreview.src = DEFAULT_PREVIEW_PICTURE;
+
+  getData(
+    (popupsSimular) => {
+      printPopups(popupsSimular);
+    },
+    (error) => showErrorAlert(`При загрузке данных произошла ошибка: ${error}`)
+  );
 };
 
 resetButton.addEventListener('click', (evt) => {
@@ -178,11 +217,13 @@ formAdd.addEventListener('submit', (evt) => {
     sendData(
       () => {
         clearAdForm();
-        showMessege(successMassege);
+        // showMessege(successMassege);
+        showSuccesMessege();
         switchAttributeSubmitBtn(false);
       },
       () => {
-        showMessege(errorMassege, errorMassegeButton);
+        showFailMessege();
+        // showMessege(errorMassege, errorMassegeButton);
         switchAttributeSubmitBtn(false);
       },
       new FormData(evt.target)
